@@ -1,8 +1,8 @@
 import logging
 import uvicorn
 from fastapi import FastAPI
-from contextlib import asynccontextmanager
 from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
 
 
 log = logging.getLogger("uvicorn")
@@ -24,6 +24,16 @@ from routes import weather, extreme, roads, ev_locator
 
 def create_application(life_span=None) -> FastAPI:
     _app = FastAPI(title="Weather Service", version="1.0.0")
+    origins = ["*"]
+
+    # Adding CORS middleware
+    _app.add_middleware(
+        CORSMiddleware,
+        allow_origins=origins,  # Which domains are allowed
+        allow_credentials=True,  # Whether to allow cookies in the requests
+        allow_methods=["*"],  # Which HTTP methods are allowed (GET, POST, etc.)
+        allow_headers=["*"],  # Which headers are allowed in the requests
+    )
     _app.mount("/static", StaticFiles(directory="static"), name="static")
     _app.include_router(weather.router, prefix="/api/v1", tags=["weather"])
     _app.include_router(extreme.router, prefix="/api/v1", tags=["extreme"])
